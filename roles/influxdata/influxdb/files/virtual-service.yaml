@@ -1,0 +1,16 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: influxdb
+  namespace: default
+spec:
+  hosts:
+    - influxdb.dev.local
+  gateways:
+    - default-gateway
+  http:
+    - route:
+        - destination:
+            port:
+              number: 80
+            host: influxdb-influxdb2

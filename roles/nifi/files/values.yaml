@@ -1,0 +1,36 @@
+service:
+  type: ClusterIP
+
+zookeeper:
+  enabled: false
+  url: zookeeper-headless
+  port: 2181
+
+extraVolumes:
+  - name: core-site
+    configMap:
+      name: core-site
+      defaultMode: 0777
+  - name: hdfs-site
+    configMap:
+      name: hdfs-site
+      defaultMode: 0777
+
+extraVolumeMounts:
+  - name: core-site
+    mountPath: /opt/nifi/nifi-current/conf/core-site.xml
+    subPath: core-site.xml
+  - name: hdfs-site
+    mountPath: /opt/nifi/nifi-current/conf/hdfs-site.xml
+    subPath: hdfs-site.xml
+
+persistence:
+  enabled: true
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 512M
+  requests:
+    cpu: 100m
+    memory: 512M

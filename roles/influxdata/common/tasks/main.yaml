@@ -1,0 +1,5 @@
+- name: Add InfluxData chart repository
+  community.kubernetes.helm_repository:
+    name: influxdata
+    repo_url: https://helm.influxdata.com/
+    binary_path: '{{ helm_binary }}'

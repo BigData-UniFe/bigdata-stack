@@ -1,0 +1,71 @@
+- name: Check if microk8s dns addon is enabled
+  shell:
+    cmd: microk8s.status -a dns
+  register: dns_addon
+
+- name: Enable microk8s dns addon if disabled
+  shell:
+    cmd: microk8s.enable dns
+  when: dns_addon.stdout == "disabled"
+
+- name: Check if Istio downloader has been downloaded
+  stat:
+    path: downloadIstioCandidate.sh
+  register: istio_downloader
+
+- name: Get Istio downloader shell script
+  get_url:
+    url: https://istio.io/downloadIstio
+    dest: ~/downloadIstioCandidate.sh
+    mode: '0777'
+  when: not istio_downloader.stat.exists
+
+- name: Check if Istio has been downloaded
+  stat:
+    path: 'istio-{{ istio_version }}'
+  register: istio_dir
+
+- name: Execute Istio downloader script
+  command: ~/downloadIstioCandidate.sh
+  environment:
+    ISTIO_VERSION: '{{ istio_version }}'
+  when: not istio_dir.stat.exists
+
+- name: Deploy Istio base chart from local path inside default namespace
+  community.kubernetes.helm:
+    name: istio
+    chart_ref: 'istio-{{ istio_version }}/manifests/charts/base'
+    release_namespace: istio-system
+    create_namespace: yes
+    binary_path: '{{ helm_binary }}'
+
+- name: Deploy Istio discovery chart from local path inside default namespace
+  community.kubernetes.helm:
+    name: istiod
+    chart_ref: 'istio-{{ istio_version }}/manifests/charts/istio-control/istio-discovery'
+    release_namespace: istio-system
+    create_namespace: yes
+    binary_path: '{{ helm_binary }}'
+
+- name: Deploy Istio ingress chart from local path inside default namespace
+  community.kubernetes.helm:
+    name: istio-ingress
+    chart_ref: 'istio-{{ istio_version }}/manifests/charts/gateways/istio-ingress'
+    release_namespace: istio-system
+    create_namespace: yes
+    binary_path: '{{ helm_binary }}'
+    values: "{{ lookup('file', 'values.yaml') | from_yaml }}"
+
+- name: Deploy Istio egress chart from local path inside default namespace
+  community.kubernetes.helm:
+    name: istio-egress
+    chart_ref: 'istio-{{ istio_version }}/manifests/charts/gateways/istio-egress'
+    release_namespace: istio-system
+    create_namespace: yes
+    binary_path: '{{ helm_binary }}'
+
+- name: Deploy default gateway
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ lookup('file', 'default-gateway.yaml') | from_yaml }}"
+    kubeconfig: '{{ kubeconfig_path }}'

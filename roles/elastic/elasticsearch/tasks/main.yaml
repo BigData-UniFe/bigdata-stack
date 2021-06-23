@@ -1,0 +1,66 @@
+- name: Create Elasticsearch p12 secret
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: Opaque
+      metadata:
+        name: elastic-certificates
+        namespace: default
+      data:
+        elastic-certificates.p12: "{{ lookup('file', 'elastic-certificates.p12') | b64encode }}"
+    kubeconfig: '{{ kubeconfig_path }}'
+
+- name: Create Elasticsearch pem secret
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: Opaque
+      metadata:
+        name: elastic-certificate-pem
+        namespace: default
+      data:
+        elastic-certificate.pem: "{{ lookup('file', 'elastic-certificate.pem') | b64encode }}"
+    kubeconfig: '{{ kubeconfig_path }}'
+
+- name: Create Elasticsearch crt secret
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: Opaque
+      metadata:
+        name: elastic-certificate-crt
+        namespace: default
+      data:
+        elastic-certificate.crt: "{{ lookup('file', 'elastic-certificate.crt') | b64encode }}"
+    kubeconfig: '{{ kubeconfig_path }}'
+
+- name: Create Elasticsearch credentials secret
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: Opaque
+      metadata:
+        name: elastic-credentials
+        namespace: default
+      data:
+        username: "{{ 'elastic' | b64encode }}"
+        password: "{{ 'Uxa5OEH2453QRo1rEhhL' | b64encode }}"
+    kubeconfig: '{{ kubeconfig_path }}'
+
+- name: Install Elasticsearch chart with custom values
+  community.kubernetes.helm:
+    name: elasticsearch
+    namespace: default
+    chart_ref: elastic/elasticsearch
+    values: "{{ lookup('file', 'values.yaml') | from_yaml }}"
+    atomic: yes
+    update_repo_cache: yes
+    binary_path: '{{ helm_binary }}'

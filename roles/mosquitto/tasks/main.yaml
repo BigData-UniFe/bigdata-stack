@@ -1,0 +1,15 @@
+- name: Add k8s@home chart repository
+  community.kubernetes.helm_repository:
+    name: k8s-at-home
+    repo_url: https://k8s-at-home.com/charts/
+    binary_path: '{{ helm_binary }}'
+
+- name: Install Mosquitto chart with custom values
+  community.kubernetes.helm:
+    name: mosquitto
+    namespace: default
+    chart_ref: k8s-at-home/mosquitto
+    values: "{{ lookup('file', 'values.yaml') | from_yaml }}"
+    atomic: yes
+    update_repo_cache: yes
+    binary_path: '{{ helm_binary }}'

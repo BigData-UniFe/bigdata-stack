@@ -1,0 +1,29 @@
+proxy:
+  service:
+    type: ClusterIP
+  https:
+    enabled: true
+    hosts:
+      - jupyter.dev.local
+    type: secret
+    secret:
+      name: jupyter-tls
+
+singleuser:
+  defaultUrl: '/lab'
+  image:
+    name: jupyter/minimal-notebook
+    tag: latest
+  profileList:
+    - display_name: 'Spark Notebook'
+      default: true
+      kubespawner_override:
+        image: fiav1/pyspark-notebook:latest
+        cmd: ['/usr/local/bin/start.sh', 'jupyterhub-singleuser']
+    - display_name: 'Java Notebook'
+      kubespawner_override:
+        image: jbindinga/java-notebook:latest
+
+prePuller:
+  annotations:
+    sidecar.istio.io/inject: 'false'

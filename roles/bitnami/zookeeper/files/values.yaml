@@ -1,0 +1,16 @@
+replicaCount: 3
+
+resource:
+  limits:
+    cpu: 1000m
+    memory: 512M
+  requests:
+    cpu: 100m
+    memory: 512M
+
+persistence:
+  enabled: true
+  storageClass: microk8s-hostpath
+  accessModes:
+    - ReadWriteOnce
+  size: 8Gi

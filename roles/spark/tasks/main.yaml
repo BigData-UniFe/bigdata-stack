@@ -1,0 +1,21 @@
+- name: Add Bitnami chart repository
+  community.kubernetes.helm_repository:
+    name: bitnami
+    repo_url: https://charts.bitnami.com/bitnami
+    binary_path: '{{ helm_binary }}'
+
+- name: Install Spark chart with custom values
+  community.kubernetes.helm:
+    name: spark
+    namespace: default
+    chart_ref: bitnami/spark
+    values: "{{ lookup('file', 'values.yaml') | from_yaml }}"
+    atomic: yes
+    update_repo_cache: yes
+    binary_path: '{{ helm_binary }}'
+
+- name: Configure Istio virtual service
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ lookup('file', 'virtual-service.yaml') | from_yaml }}"
+    kubeconfig: '{{ kubeconfig_path }}'

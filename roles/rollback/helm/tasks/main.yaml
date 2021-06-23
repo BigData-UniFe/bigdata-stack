@@ -1,0 +1,67 @@
+- name: Check if Helm is available
+  stat:
+    path: /snap/bin/microk8s.helm3
+  register: helm3_status
+
+- name: Remove Kubernetes Dashboard chart repo
+  community.kubernetes.helm_repository:
+    name: kubernetes-dashboard
+    state: absent
+    binary_path: '{{ helm_binary }}'
+  when: helm3_status.stat.exists
+
+- name: Remove Elastic chart repo
+  community.kubernetes.helm_repository:
+    name: elastic
+    state: absent
+    binary_path: '{{ helm_binary }}'
+  when: helm3_status.stat.exists
+
+- name: Remove Confluent Platform chart repo
+  community.kubernetes.helm_repository:
+    name: confluentinc
+    state: absent
+    binary_path: '{{ helm_binary }}'
+  when: helm3_status.stat.exists
+
+- name: Remove Jupyter Hub chart repository
+  community.kubernetes.helm_repository:
+    name: jupyterhub
+    state: absent
+    binary_path: '{{ helm_binary }}'
+  when: helm3_status.stat.exists
+
+- name: Remove Gradiant chart repository
+  community.kubernetes.helm_repository:
+    name: gradiant
+    state: absent
+    binary_path: '{{ helm_binary }}'
+  when: helm3_status.stat.exists
+
+- name: Remove Cetic chart repository
+  community.kubernetes.helm_repository:
+    name: cetic
+    state: absent
+    binary_path: '{{ helm_binary }}'
+  when: helm3_status.stat.exists
+
+- name: Remove Bitnami chart repository
+  community.kubernetes.helm_repository:
+    name: bitnami
+    state: absent
+    binary_path: '{{ helm_binary }}'
+  when: helm3_status.stat.exists
+
+- name: Remove InfluxData chart repository
+  community.kubernetes.helm_repository:
+    name: influxdata
+    state: absent
+    binary_path: '{{ helm_binary }}'
+  when: helm3_status.stat.exists
+
+- name: Remove k8s@home chart repository
+  community.kubernetes.helm_repository:
+    name: k8s-at-home
+    state: absent
+    binary_path: '{{ helm_binary }}'
+  when: helm3_status.stat.exists

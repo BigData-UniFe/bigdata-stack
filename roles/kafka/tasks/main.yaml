@@ -1,0 +1,21 @@
+- name: Add Confluent Platform chart repository
+  community.kubernetes.helm_repository:
+    name: confluentinc
+    repo_url: https://confluentinc.github.io/cp-helm-charts/
+    binary_path: '{{ helm_binary }}'
+
+- name: Create config map for connectors creation
+  community.kubernetes.k8s:
+    state: present
+    template: config-map.yaml
+    kubeconfig: '{{ kubeconfig_path }}'
+
+- name: Install Confluent Platform chart with custom values
+  community.kubernetes.helm:
+    name: confluent
+    namespace: default
+    chart_ref: confluentinc/cp-helm-charts
+    values: "{{ lookup('file', 'values.yaml') | from_yaml }}"
+    atomic: yes
+    update_repo_cache: yes
+    binary_path: '{{ helm_binary }}'

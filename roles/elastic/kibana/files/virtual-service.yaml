@@ -1,0 +1,20 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: kibana
+  namespace: default
+spec:
+  hosts:
+    - kibana.dev.local
+  gateways:
+    - default-gateway
+  tls:
+    - match:
+        - port: 443
+          sniHosts:
+            - kibana.dev.local
+      route:
+        - destination:
+            host: kibana-kibana
+            port:
+              number: 5601

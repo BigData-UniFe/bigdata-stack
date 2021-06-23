@@ -1,0 +1,20 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: jupyterhub
+  namespace: default
+spec:
+  hosts:
+    - jupyter.dev.local
+  gateways:
+    - default-gateway
+  tls:
+    - match:
+        - port: 443
+          sniHosts:
+            - jupyter.dev.local
+      route:
+        - destination:
+            host: proxy-public
+            port:
+              number: 443

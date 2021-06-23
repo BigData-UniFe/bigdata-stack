@@ -1,0 +1,27 @@
+- hosts: all
+  tags:
+    - prerequisites
+  roles:
+    - microk8s/install
+    - microk8s/helm
+    - microk8s/istio
+    - microk8s/storage
+
+- hosts: masters
+  tags:
+    - services
+  roles:
+    - dashboard
+    - bitnami/common
+    - bitnami/zookeeper
+    - elastic/common
+    - elastic/elasticsearch
+    - elastic/kibana
+    - kafka
+    - jupyter-hub
+    - hdfs
+    - nifi
+    - spark
+    - influxdata/common
+    - influxdata/influxdb
+    - mosquitto

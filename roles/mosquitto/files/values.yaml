@@ -1,0 +1,5 @@
+persistence:
+  data:
+    enabled: true
+  configinc:
+    enabled: true

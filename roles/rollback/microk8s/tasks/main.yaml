@@ -1,0 +1,5 @@
+- name: Uninstall Microk8s
+  become: yes
+  community.general.snap:
+    name: microk8s
+    state: absent

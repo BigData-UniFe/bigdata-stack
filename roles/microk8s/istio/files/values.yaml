@@ -1,0 +1,22 @@
+gateways:
+  istio-ingressgateway:
+    ports:
+      - port: 15021
+        targetPort: 15021
+        name: status-port
+        protocol: TCP
+      - port: 80
+        targetPort: 8080
+        nodePort: 30080
+        name: http2
+        protocol: TCP
+      - port: 443
+        targetPort: 8443
+        nodePort: 30443
+        name: https
+        protocol: TCP
+      - port: 1883
+        targetPort: 1883
+        nodePort: 31883
+        name: mosquitto-port
+        protocol: TCP

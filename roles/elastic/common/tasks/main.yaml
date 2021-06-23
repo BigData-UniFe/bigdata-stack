@@ -1,0 +1,5 @@
+- name: Add Elastic chart repository
+  community.kubernetes.helm_repository:
+    name: elastic
+    repo_url: https://helm.elastic.co
+    binary_path: '{{ helm_binary }}'

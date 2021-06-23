@@ -1,0 +1,33 @@
+- name: Add Cetic chart repository
+  community.kubernetes.helm_repository:
+    name: cetic
+    repo_url: https://cetic.github.io/helm-charts
+    binary_path: '{{ helm_binary }}'
+
+- name: Create config map for core-site
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ lookup('file', 'core-site.yaml') | from_yaml }}"
+    kubeconfig: '{{ kubeconfig_path }}'
+
+- name: Create config map for hdfs-site
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ lookup('file', 'hdfs-site.yaml') | from_yaml }}"
+    kubeconfig: '{{ kubeconfig_path }}'
+
+- name: Install NiFi chart with custom values
+  community.kubernetes.helm:
+    name: nifi
+    namespace: default
+    chart_ref: cetic/nifi
+    values: "{{ lookup('file', 'values.yaml') | from_yaml }}"
+    atomic: yes
+    update_repo_cache: yes
+    binary_path: '{{ helm_binary }}'
+
+- name: Configure Istio virtual service
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ lookup('file', 'virtual-service.yaml') | from_yaml }}"
+    kubeconfig: '{{ kubeconfig_path }}'

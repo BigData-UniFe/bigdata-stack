@@ -1,0 +1,7 @@
+- hosts: masters
+  tags:
+    - uninstall
+  roles:
+    - rollback/istio
+    - rollback/helm
+    - rollback/microk8s

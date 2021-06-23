@@ -1,0 +1,39 @@
+nameNode:
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512M
+    requests:
+      cpu: 100m
+      memory: 512M
+
+dataNode:
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512M
+    requests:
+      cpu: 100m
+      memory: 512M
+
+persistence:
+  nameNode:
+    enabled: false
+    storageClass:
+    accessMode: ReadWriteOnce
+    size: 5Gi
+  dataNode:
+    enabled: false
+    storageClass:
+    accessMode: ReadWriteOnce
+    size: 10Gi
+
+conf:
+  hdfsSite:
+    dfs.permissions.enabled: 'false'
+
+#postInstallCommands:
+#  - hdfs dfs -mkdir /nifi
+#  - hdfs dfs -chown nifi /nifi
+#  - hdfs dfs -chmod 0755 /nifi
+#  - hdfs dfs -ls /

@@ -1,0 +1,9 @@
+- name: Remove Istio downloader shell script
+  file:
+    path: ~/downloadIstioCandidate.sh
+    state: absent
+
+- name: Remove Istio folder
+  file:
+    path: '~/istio-{{ istio_version }}'
+    state: absent

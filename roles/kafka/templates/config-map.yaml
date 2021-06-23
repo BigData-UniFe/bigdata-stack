@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: create-connectors
+  namespace: default
+data:
+  create-connectors.sh: |
+    echo "======> Installing custom connector plugins"
+    # Install custom connector plugins
+    {% for connector_plugin in connector_plugins %}
+    confluent-hub install --no-prompt {{ connector_plugin }}
+    {% endfor %}
+
+    echo "======> Waiting for Kafka Connect to start listening on kafka-connect"
+    while :; do
+      # Check if the connector endpoint is ready
+      # If not check again
+      curl_status=$(curl -s -o /dev/null -w %{http_code} http://localhost:8083/connectors)
+      echo -e $(date) "Kafka Connect listener HTTP state: " $curl_status " (waiting for 200)"
+      if [ $curl_status -eq 200 ]; then
+        break
+      fi
+      sleep 5
+    done
+
+    echo "======> Creating connectors with custom configuration"
+    # Send a simple POST request to create the connector
+    {% for connector_config in connector_configs %}
+    curl -X POST -H "Content-Type: application/json" --data '{
+      "name": "{{ connector_config['name'] }}",
+      "config": {
+        {% for key, values in connector_config['config'].items() %}
+        "{{ key }}": "{{ values }}"{{ "," if not loop.last else "" }}
+        {% endfor %}
+      }
+    }' http://$CONNECT_REST_ADVERTISED_HOST_NAME:8083/connectors
+    {% endfor %}

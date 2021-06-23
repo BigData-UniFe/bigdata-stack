@@ -1,0 +1,29 @@
+- name: Create Kibana encryption key secret
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: Opaque
+      metadata:
+        name: kibana
+        namespace: default
+      data:
+        encryptionkey: "{{ '0uZuLyMt22ODvll20bQQHPq6pEcFYOM3AQ8Ry1Z0DKSLrCeVvB' | b64encode }}"
+    kubeconfig: '{{ kubeconfig_path }}'
+
+- name: Install Kibana chart with custom values
+  community.kubernetes.helm:
+    name: kibana
+    namespace: default
+    chart_ref: elastic/kibana
+    values: "{{ lookup('file', 'values.yaml') | from_yaml }}"
+    atomic: yes
+    update_repo_cache: yes
+    binary_path: '{{ helm_binary }}'
+
+- name: Configure Istio virtual service
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ lookup('file', 'virtual-service.yaml') | from_yaml }}"
+    kubeconfig: '{{ kubeconfig_path }}'

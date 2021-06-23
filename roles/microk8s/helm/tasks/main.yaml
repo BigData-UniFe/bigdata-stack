@@ -1,0 +1,15 @@
+- name: Check if microk8s helm3 addon is enabled
+  shell:
+    cmd: microk8s.status -a helm3
+  register: helm3_addon
+
+- name: Enable microk8s helm3 addon if disabled
+  shell:
+    cmd: microk8s.enable helm3
+  when: helm3_addon.stdout == "disabled"
+
+- name: Install Helm Diff plugin
+  community.kubernetes.helm_plugin:
+    plugin_path: https://github.com/databus23/helm-diff
+    state: present
+    binary_path: '{{ helm_binary }}'

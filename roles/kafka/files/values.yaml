@@ -1,0 +1,56 @@
+cp-zookeeper:
+  enabled: false
+  url: zookeeper-headless
+
+cp-kafka:
+  cp-zookeeper:
+    enabled: false
+    url: zookeeper-headless
+  persistence:
+    enabled: true
+    size: 5Gi
+    storageClass: microk8s-hostpath
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512M
+    requests:
+      cpu: 100m
+      memory: 512M
+
+cp-kafka-connect:
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512M
+    requests:
+      cpu: 100m
+      memory: 512M
+  volumeMounts:
+    - name: create-connectors
+      mountPath: /etc/scripts
+  volumes:
+    - name: create-connectors
+      configMap:
+        name: create-connectors
+        defaultMode: 0777
+  customEnv:
+    CUSTOM_SCRIPT_PATH: /etc/scripts/create-connectors.sh
+
+cp-schema-registry:
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512M
+    requests:
+      cpu: 100m
+      memory: 512M
+
+cp-kafka-rest:
+  enabled: false
+
+cp-ksql-server:
+  enabled: false
+
+cp-control-center:
+  enabled: false

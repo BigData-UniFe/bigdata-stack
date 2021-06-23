@@ -1,0 +1,21 @@
+- name: Add Gradiant chart repository
+  community.kubernetes.helm_repository:
+    name: gradiant
+    repo_url: https://gradiant.github.io/charts
+    binary_path: '{{ helm_binary }}'
+
+- name: Install HDFS chart with custom values
+  community.kubernetes.helm:
+    name: hdfs
+    namespace: default
+    chart_ref: gradiant/hdfs
+    values: "{{ lookup('file', 'values.yaml') | from_yaml }}"
+    atomic: yes
+    update_repo_cache: yes
+    binary_path: '{{ helm_binary }}'
+
+- name: Configure Istio virtual service
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ lookup('file', 'virtual-service.yaml') | from_yaml }}"
+    kubeconfig: '{{ kubeconfig_path }}'

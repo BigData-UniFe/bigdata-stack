@@ -1,0 +1,78 @@
+- name: Add Jupyter Hub chart repository
+  community.kubernetes.helm_repository:
+    name: jupyterhub
+    repo_url: https://jupyterhub.github.io/helm-chart/
+    binary_path: '{{ helm_binary }}'
+
+- name: Check if jupyterhub secret exists
+  community.kubernetes.k8s_info:
+    api_version: v1
+    kind: Secret
+    name: jupyter-tls
+    namespace: default
+    kubeconfig: '{{ kubeconfig_path }}'
+  register: jupyter_tls
+
+- name: Generate a private key
+  openssl_privatekey:
+    path: jupyter.key
+    size: 2048
+    return_content: yes
+  register: generated_privatekey
+  when: jupyter_tls.resources | length > 0
+
+- name: Generate a self-signed certificate
+  openssl_certificate:
+    provider: selfsigned
+    path: jupyter.crt
+    privatekey_path: jupyter.key
+    return_content: yes
+  register: generated_certificate
+  when: jupyter_tls.resources | length > 0
+
+- name: Remove generated private key
+  openssl_privatekey:
+    path: jupyter.key
+    state: absent
+  when: jupyter_tls.resources | length > 0
+
+- name: Remove generated self-signed certificate
+  openssl_certificate:
+    path: jupyter.crt
+    state: absent
+  when: jupyter_tls.resources | length > 0
+
+- name: Create JupyterHub tls secret
+  community.kubernetes.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: jupyter-tls
+        namespace: default
+      type: kubernetes.io/tls
+      data:
+        tls.crt: |
+          {{ generated_certificate.certificate | b64encode }}
+        tls.key: |
+          {{ generated_privatekey.privatekey | b64encode }}
+    kubeconfig: '{{ kubeconfig_path }}'
+  when: jupyter_tls.resources | length > 0
+
+- name: Install Jupyter Hub chart with custom values
+  community.kubernetes.helm:
+    name: jupyterhub
+    namespace: default
+    chart_ref: jupyterhub/jupyterhub
+    values: "{{ lookup('file', 'values.yaml') | from_yaml }}"
+    update_repo_cache: yes
+    wait: no
+    atomic: no
+    binary_path: '{{ helm_binary }}'
+
+- name: Configure Istio virtual service
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ lookup('file', 'virtual-service.yaml') | from_yaml }}"
+    kubeconfig: '{{ kubeconfig_path }}'

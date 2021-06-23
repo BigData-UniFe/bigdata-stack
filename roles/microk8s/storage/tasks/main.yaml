@@ -1,0 +1,9 @@
+- name: Check if microk8s storage addon is disabled
+  shell:
+    cmd: microk8s.status -a storage
+  register: storage_addon
+
+- name: Enable microk8s storage addons if disabled
+  shell:
+    cmd: microk8s.enable storage
+  when: storage_addon.stdout == "disabled"
