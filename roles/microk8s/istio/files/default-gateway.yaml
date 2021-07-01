@@ -21,3 +21,9 @@ spec:
         mode: PASSTHROUGH
       hosts:
         - '*.dev.local'
+    - port:
+        number: 1883
+        name: mqtt
+        protocol: TCP
+      hosts:
+        - '*.dev.local'

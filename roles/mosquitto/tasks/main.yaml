@@ -10,6 +10,11 @@
     namespace: default
     chart_ref: k8s-at-home/mosquitto
     values: "{{ lookup('file', 'values.yaml') | from_yaml }}"
-    atomic: yes
     update_repo_cache: yes
     binary_path: '{{ helm_binary }}'
+
+- name: Configure Istio virtual service
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ lookup('file', 'virtual-service.yaml') | from_yaml }}"
+    kubeconfig: '{{ kubeconfig_path }}'

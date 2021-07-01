@@ -14,33 +14,33 @@
   register: jupyter_tls
 
 - name: Generate a private key
-  openssl_privatekey:
+  community.crypto.openssl_privatekey:
     path: jupyter.key
     size: 2048
     return_content: yes
   register: generated_privatekey
-  when: jupyter_tls.resources | length > 0
+  when: jupyter_tls.resources | length == 0
 
 - name: Generate a self-signed certificate
-  openssl_certificate:
+  community.crypto.x509_certificate:
     provider: selfsigned
     path: jupyter.crt
     privatekey_path: jupyter.key
     return_content: yes
   register: generated_certificate
-  when: jupyter_tls.resources | length > 0
+  when: jupyter_tls.resources | length == 0
 
 - name: Remove generated private key
-  openssl_privatekey:
+  community.crypto.openssl_privatekey:
     path: jupyter.key
     state: absent
-  when: jupyter_tls.resources | length > 0
+  when: jupyter_tls.resources | length == 0
 
 - name: Remove generated self-signed certificate
-  openssl_certificate:
+  community.crypto.x509_certificate:
     path: jupyter.crt
     state: absent
-  when: jupyter_tls.resources | length > 0
+  when: jupyter_tls.resources | length == 0
 
 - name: Create JupyterHub tls secret
   community.kubernetes.k8s:
@@ -58,7 +58,7 @@
         tls.key: |
           {{ generated_privatekey.privatekey | b64encode }}
     kubeconfig: '{{ kubeconfig_path }}'
-  when: jupyter_tls.resources | length > 0
+  when: jupyter_tls.resources | length == 0
 
 - name: Install Jupyter Hub chart with custom values
   community.kubernetes.helm:
@@ -67,8 +67,6 @@
     chart_ref: jupyterhub/jupyterhub
     values: "{{ lookup('file', 'values.yaml') | from_yaml }}"
     update_repo_cache: yes
-    wait: no
-    atomic: no
     binary_path: '{{ helm_binary }}'
 
 - name: Configure Istio virtual service

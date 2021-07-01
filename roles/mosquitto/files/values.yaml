@@ -1,5 +1,11 @@
 persistence:
   data:
     enabled: true
+    mountPath: /mosquitto/data
+    accessMode: ReadWriteOnce
+    size: 1Gi
   configinc:
     enabled: true
+    mountPath: /mosquitto/configinc
+    accessMode: ReadWriteOnce
+    size: 100Mi

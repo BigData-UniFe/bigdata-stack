@@ -1,20 +1,76 @@
-- name: Create Elasticsearch p12 secret
-  community.kubernetes.k8s:
-    state: present
-    definition:
-      apiVersion: v1
-      kind: Secret
-      type: Opaque
-      metadata:
-        name: elastic-certificates
-        namespace: default
-      data:
-        elastic-certificates.p12: "{{ lookup('file', 'elastic-certificates.p12') | b64encode }}"
+- name: Check if elastic-certificate secret exists
+  community.kubernetes.k8s_info:
+    api_version: v1
+    kind: Secret
+    name: elastic-certificates
+    namespace: default
     kubeconfig: '{{ kubeconfig_path }}'
+  register: elastic_certificates
 
-- name: Create Elasticsearch pem secret
+- name: Generate a private key
+  community.crypto.openssl_privatekey:
+    path: elastic-certificate.pem
+    return_content: yes
+  register: generated_privatekey
+  when: elastic_certificates.resources | length == 0
+
+- name: Generate a CSR
+  community.crypto.openssl_csr:
+    path: elastic-certificate.csr
+    privatekey_path: elastic-certificate.pem
+    country_name: IT
+    state_or_province_name: Ferrara
+    organization_name: MechLav
+    return_content: yes
+  register: generated_csr
+  when: elastic_certificates.resources | length == 0
+
+- name: Generate a self-signed certificate
+  community.crypto.x509_certificate:
+    path: elastic-certificate.crt
+    privatekey_path: elastic-certificate.pem
+    csr_path: elastic-certificate.csr
+    provider: selfsigned
+    return_content: yes
+  register: generated_certificate
+  when: elastic_certificates.resources | length == 0
+
+- name: Generate PKCS#12 file
+  community.crypto.openssl_pkcs12:
+    name: elastic-certificates
+    path: elastic-certificates.p12
+    privatekey_path: elastic-certificate.pem
+    certificate_path: elastic-certificate.crt
+    return_content: yes
+  register: generated_pkcs12
+  when: elastic_certificates.resources | length == 0
+
+- name: Remove generated private key
+  community.crypto.openssl_privatekey:
+    path: elastic-certificate.pem
+    state: absent
+  when: elastic_certificates.resources | length == 0
+
+- name: Remove generated CSR
+  community.crypto.openssl_csr:
+    path: elastic-certificate.csr
+    state: absent
+  when: elastic_certificates.resources | length == 0
+
+- name: Remove generated self-signed certificate
+  community.crypto.x509_certificate:
+    path: elastic-certificate.crt
+    state: absent
+  when: elastic_certificates.resources | length == 0
+
+- name: Remove generated PKCS#12 file
+  community.crypto.openssl_pkcs12:
+    path: elastic-certificates.p12
+    state: absent
+  when: elastic_certificates.resources | length == 0
+
+- name: Create elastic-certificate-pem secret
   community.kubernetes.k8s:
-    state: present
     definition:
       apiVersion: v1
       kind: Secret
@@ -23,12 +79,12 @@
         name: elastic-certificate-pem
         namespace: default
       data:
-        elastic-certificate.pem: "{{ lookup('file', 'elastic-certificate.pem') | b64encode }}"
+        elastic-certificate.pem: '{{ generated_privatekey.privatekey | b64encode }}'
     kubeconfig: '{{ kubeconfig_path }}'
+  when: elastic_certificates.resources | length == 0
 
-- name: Create Elasticsearch crt secret
+- name: Create elastic-certificate-crt secret
   community.kubernetes.k8s:
-    state: present
     definition:
       apiVersion: v1
       kind: Secret
@@ -37,10 +93,39 @@
         name: elastic-certificate-crt
         namespace: default
       data:
-        elastic-certificate.crt: "{{ lookup('file', 'elastic-certificate.crt') | b64encode }}"
+        elastic-certificate.crt: '{{ generated_certificate.certificate | b64encode }}'
     kubeconfig: '{{ kubeconfig_path }}'
+  when: elastic_certificates.resources | length == 0
 
-- name: Create Elasticsearch credentials secret
+- name: Create elastic-certificate-csr secret
+  community.kubernetes.k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: Opaque
+      metadata:
+        name: elastic-certificate-csr
+        namespace: default
+      data:
+        elastic-certificate.csr: '{{ generated_csr.csr | b64encode }}'
+    kubeconfig: '{{ kubeconfig_path }}'
+  when: elastic_certificates.resources | length == 0
+
+- name: Create elastic-certificates secret
+  community.kubernetes.k8s:
+    definition:
+      apiVersion: v1
+      kind: Secret
+      type: Opaque
+      metadata:
+        name: elastic-certificates
+        namespace: default
+      data:
+        elastic-certificates.p12: '{{ generated_pkcs12.pkcs12 }}'
+    kubeconfig: '{{ kubeconfig_path }}'
+  when: elastic_certificates.resources | length == 0
+
+- name: Create elastic-credentials secret
   community.kubernetes.k8s:
     state: present
     definition:
@@ -52,7 +137,7 @@
         namespace: default
       data:
         username: "{{ 'elastic' | b64encode }}"
-        password: "{{ 'Uxa5OEH2453QRo1rEhhL' | b64encode }}"
+        password: "{{ 'elastic' | b64encode }}"
     kubeconfig: '{{ kubeconfig_path }}'
 
 - name: Install Elasticsearch chart with custom values
@@ -61,6 +146,5 @@
     namespace: default
     chart_ref: elastic/elasticsearch
     values: "{{ lookup('file', 'values.yaml') | from_yaml }}"
-    atomic: yes
     update_repo_cache: yes
     binary_path: '{{ helm_binary }}'

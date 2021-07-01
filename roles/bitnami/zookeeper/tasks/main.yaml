@@ -4,6 +4,5 @@
     namespace: default
     chart_ref: bitnami/zookeeper
     values: "{{ lookup('file', 'values.yaml') | from_yaml }}"
-    atomic: yes
     update_repo_cache: yes
     binary_path: '{{ helm_binary }}'
