@@ -67,5 +67,5 @@
 - name: Deploy default gateway
   community.kubernetes.k8s:
     state: present
-    definition: "{{ lookup('file', 'default-gateway.yaml') | from_yaml }}"
+    definition: "{{ lookup('template', 'default-gateway.yaml') | from_yaml }}"
     kubeconfig: '{{ kubeconfig_path }}'

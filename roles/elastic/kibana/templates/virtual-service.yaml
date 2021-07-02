@@ -5,14 +5,14 @@ metadata:
   namespace: default
 spec:
   hosts:
-    - kibana.dev.local
+    - 'kibana.{{ hostname }}'
   gateways:
     - default-gateway
   tls:
     - match:
         - port: 443
           sniHosts:
-            - kibana.dev.local
+            - 'kibana.{{ hostname }}'
       route:
         - destination:
             host: kibana-kibana

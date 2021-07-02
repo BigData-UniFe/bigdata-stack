@@ -5,6 +5,21 @@
     classic: yes
     channel: 1.21/stable
 
+- name: Adding user {{ ansible_user }} to microk8s group
+  user:
+    name: '{{ ansible_user }}'
+    groups:
+      - microk8s
+    append: yes
+
+- name: Recursively change ownership of kube folder
+  ansible.builtin.file:
+    path: ~/.kube
+    state: directory
+    recurse: yes
+    owner: '{{ ansible_user }}'
+    group: '{{ ansible_user }}'
+
 - name: Install python3-pip
   become: yes
   apt:

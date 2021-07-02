@@ -10,5 +10,5 @@
 - name: Configure Istio virtual service
   community.kubernetes.k8s:
     state: present
-    definition: "{{ lookup('file', 'virtual-service.yaml') | from_yaml }}"
+    definition: "{{ lookup('template', 'virtual-service.yaml') | from_yaml }}"
     kubeconfig: '{{ kubeconfig_path }}'

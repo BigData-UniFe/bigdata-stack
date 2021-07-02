@@ -12,7 +12,7 @@ spec:
         name: http
         protocol: HTTP
       hosts:
-        - '*.dev.local'
+        - '*.{{ hostname }}'
     - port:
         number: 443
         name: https
@@ -20,10 +20,10 @@ spec:
       tls:
         mode: PASSTHROUGH
       hosts:
-        - '*.dev.local'
+        - '*.{{ hostname }}'
     - port:
         number: 1883
         name: mqtt
         protocol: TCP
       hosts:
-        - '*.dev.local'
+        - '*.{{ hostname }}'

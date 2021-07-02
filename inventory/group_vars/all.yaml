@@ -5,3 +5,4 @@ ansible_ssh_private_key_file: ~/.ssh/id_ed25519
 helm_binary: /snap/bin/microk8s.helm3
 kubeconfig_path: /var/snap/microk8s/current/credentials/client.config
 istio_version: '1.10.0'
+hostname: dev.local

@@ -1,18 +1,16 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: mosquitto
+  name: nifi
   namespace: default
 spec:
   hosts:
-    - mosquitto.dev.local
+    - 'nifi.{{ hostname }}'
   gateways:
     - default-gateway
-  tcp:
-    - match:
-        - port: 1883
-      route:
+  http:
+    - route:
         - destination:
-            host: mosquitto
             port:
-              number: 1883
+              number: 8080
+            host: nifi

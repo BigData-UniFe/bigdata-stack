@@ -1,2 +1,2 @@
-ansible_host: 192.168.1.250
+ansible_host: ubuntu-server
 ansible_user: fiav1

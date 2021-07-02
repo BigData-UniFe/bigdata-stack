@@ -4,7 +4,7 @@ proxy:
   https:
     enabled: true
     hosts:
-      - jupyter.dev.local
+      - 'jupyter.{{ hostname }}'
     type: secret
     secret:
       name: jupyter-tls

@@ -17,7 +17,14 @@ ansible-galaxy install -r requirements.yaml
 
 ## Configuration
 
-Configure the inventory by changing username, password and ssh key/password under the `inventory` folder.
+- `inventory/group_vars/all.yaml`:
+  - If `ansible_ssh_private_key_file` with correct ssh private key path
+  - Else if `ansible_password` with correct ssh password
+- `inventory/host_vars/n00.yaml`:
+  - Edit `ansible_host` giving the correct IP or hostname
+  - Edit `ansible_user` giving the correct username
+- `inventory/hosts`:
+  - Optionally add more hosts that needs to be added also under `inventory/host_vars` with correct name and configurations
 
 ## Run playbook
 

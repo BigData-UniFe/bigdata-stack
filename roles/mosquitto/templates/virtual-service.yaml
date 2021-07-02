@@ -1,16 +1,18 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: hdfs
+  name: mosquitto
   namespace: default
 spec:
   hosts:
-    - hdfs.dev.local
+    - 'mosquitto.{{ hostname }}'
   gateways:
     - default-gateway
-  http:
-    - route:
+  tcp:
+    - match:
+        - port: 1883
+      route:
         - destination:
+            host: mosquitto
             port:
-              number: 50070
-            host: hdfs
+              number: 1883
