@@ -1,0 +1,20 @@
+- name: Add Grafana chart repository
+  community.kubernetes.helm_repository:
+    name: grafana
+    repo_url: https://grafana.github.io/helm-charts
+    binary_path: '{{ helm_binary }}'
+
+- name: Install Grafana chart with custom values
+  community.kubernetes.helm:
+    name: grafana
+    namespace: default
+    chart_ref: grafana/grafana
+    values: "{{ lookup('file', 'values.yaml') | from_yaml }}"
+    update_repo_cache: yes
+    binary_path: '{{ helm_binary }}'
+
+- name: Configure Istio virtual service
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ lookup('template', 'virtual-service.yaml') | from_yaml }}"
+    kubeconfig: '{{ kubeconfig_path }}'

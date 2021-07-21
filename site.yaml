@@ -17,6 +17,7 @@
     - elastic/common
     - elastic/elasticsearch
     - elastic/kibana
+    - grafana
     - kafka
     - jupyter-hub
     - hdfs

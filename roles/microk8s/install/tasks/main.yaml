@@ -6,14 +6,19 @@
     channel: 1.21/stable
 
 - name: Adding user {{ ansible_user }} to microk8s group
+  become: yes
   user:
     name: '{{ ansible_user }}'
     groups:
       - microk8s
     append: yes
 
+- name: Reset ssh connection to allow user changes to affect ansible user
+  meta:
+    reset_connection
+
 - name: Recursively change ownership of kube folder
-  ansible.builtin.file:
+  file:
     path: ~/.kube
     state: directory
     recurse: yes
