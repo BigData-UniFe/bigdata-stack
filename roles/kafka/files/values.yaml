@@ -59,7 +59,7 @@ cp-kafka-rest:
   enabled: true
   resources:
     limits:
-      cpu: 1Gi
+      cpu: 1000m
       memory: 512Mi
     requests:
       cpu: 100m
