@@ -26,11 +26,3 @@ extraVolumeMounts:
 
 persistence:
   enabled: true
-
-resources:
-  limits:
-    cpu: 1000m
-    memory: 512M
-  requests:
-    cpu: 100m
-    memory: 512M
