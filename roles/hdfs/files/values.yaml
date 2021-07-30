@@ -1,21 +1,3 @@
-nameNode:
-  resources:
-    limits:
-      cpu: 1000m
-      memory: 512M
-    requests:
-      cpu: 100m
-      memory: 512M
-
-dataNode:
-  resources:
-    limits:
-      cpu: 1000m
-      memory: 512M
-    requests:
-      cpu: 100m
-      memory: 512M
-
 persistence:
   nameNode:
     enabled: false

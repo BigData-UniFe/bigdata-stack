@@ -19,6 +19,7 @@
     path: elastic-certificate.csr
     privatekey_path: elastic-certificate.pem
     country_name: IT
+    common_name: elasticsearch-master
     state_or_province_name: Ferrara
     organization_name: MechLav
     return_content: yes

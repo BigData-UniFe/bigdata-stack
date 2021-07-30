@@ -1,11 +1,11 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
-  name: kafka-rest
+  name: control-center
   namespace: default
 spec:
   hosts:
-    - 'kafka-rest.{{ hostname }}'
+    - 'control-center.{{ hostname }}'
   gateways:
     - default-gateway
   http:
@@ -13,4 +13,21 @@ spec:
         - destination:
             port:
               number: 8082
-            host: confluent-cp-kafka-rest
+            host: confluent-cp-control-center
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: control-center
+  namespace: default
+spec:
+  hosts:
+    - 'control-center.{{ hostname }}'
+  gateways:
+    - default-gateway
+  http:
+    - route:
+        - destination:
+            port:
+              number: 9021
+            host: confluent-cp-control-center

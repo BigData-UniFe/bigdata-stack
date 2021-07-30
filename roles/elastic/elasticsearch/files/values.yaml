@@ -38,14 +38,6 @@ esJavaOpts: '-Xmx128m -Xms128m'
 
 protocol: https
 
-resources:
-  limits:
-    cpu: 1000m
-    memory: 512M
-  requests:
-    cpu: 100m
-    memory: 512M
-
 volumeClaimTemplate:
   accessModes: ['ReadWriteOnce']
   resources:
