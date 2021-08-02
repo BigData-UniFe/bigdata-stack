@@ -1,4 +1,4 @@
-elasticsearchHosts: 'https://elasticsearch-master-headless:9200'
+elasticsearchHosts: 'https://elasticsearch-master:9200'
 
 extraEnvs:
   - name: 'ELASTICSEARCH_USERNAME'

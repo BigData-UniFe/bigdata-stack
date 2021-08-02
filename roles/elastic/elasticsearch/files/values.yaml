@@ -1,5 +1,3 @@
-imageTag: 7.13.2
-
 sysctlInitContainer:
   enabled: false
 
@@ -34,13 +32,11 @@ secretMounts:
 
 antiAffinity: 'soft'
 
-esJavaOpts: '-Xmx128m -Xms128m'
-
 protocol: https
 
 volumeClaimTemplate:
   accessModes: ['ReadWriteOnce']
   resources:
     requests:
-      storage: 10Gi
+      storage: 5Gi
   storageClassName: microk8s-hostpath
