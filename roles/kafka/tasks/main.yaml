@@ -18,3 +18,9 @@
     values: "{{ lookup('file', 'values.yaml') | from_yaml }}"
     update_repo_cache: yes
     binary_path: '{{ helm_binary }}'
+
+- name: Configure Istio virtual service
+  community.kubernetes.k8s:
+    state: present
+    definition: "{{ lookup('template', 'virtual-service.yaml') | from_yaml }}"
+    kubeconfig: '{{ kubeconfig_path }}'
